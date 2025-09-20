@@ -199,6 +199,7 @@ func (h *Handler) createSubscription(c echo.Context) error {
 			"message": "internal server error",
 		})
 	}
+
 	return c.JSON(http.StatusCreated, map[string]string{
 		"message": "subscription was succesfully created",
 	})
