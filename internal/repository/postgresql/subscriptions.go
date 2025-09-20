@@ -97,7 +97,7 @@ func (s *Subscriptions) GetPriceSumByUserID(context context.Context, userID uuid
 	sum, err := pgx.CollectExactlyOneRow(rows, pgx.RowTo[int64])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return 0, domain.ErrUserNotFound
+			return 0, domain.ErrSubscriptionNotFound
 		}
 
 		return 0, err
