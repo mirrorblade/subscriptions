@@ -27,3 +27,13 @@ type Subscriptions interface {
 	UpdateByID(context context.Context, id uuid.UUID, parameters UpdateParameters) error
 	DeleteByID(context context.Context, id uuid.UUID) error
 }
+
+type Respository struct {
+	subscriptions Subscriptions
+}
+
+func New(subscriptions Subscriptions) *Respository {
+	return &Respository{
+		subscriptions: subscriptions,
+	}
+}
