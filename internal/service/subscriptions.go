@@ -31,6 +31,16 @@ func (s *SubscriptionsService) GetPriceSumByUserID(context context.Context, user
 }
 
 func (s *SubscriptionsService) Create(context context.Context, subscription domain.Subscription) error {
+	if subscription.Price < 0 {
+		return domain.ErrInvalidPrice
+	}
+
+	if subscription.EndDate != nil && (*subscription.EndDate).Before(subscription.StartDate) {
+		return domain.ErrInvalidDate
+	}
+
+	subscription.ID = uuid.New()
+
 	return s.subscriptions.Create(context, subscription)
 }
 

@@ -18,11 +18,11 @@ type Subscriptions interface {
 }
 
 type Service struct {
-	subscriptions Subscriptions
+	Subscriptions Subscriptions
 }
 
 func New(subscriptions Subscriptions) *Service {
 	return &Service{
-		subscriptions: subscriptions,
+		Subscriptions: subscriptions,
 	}
 }
