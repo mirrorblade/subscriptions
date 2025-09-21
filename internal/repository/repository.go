@@ -29,11 +29,11 @@ type Subscriptions interface {
 }
 
 type Respository struct {
-	subscriptions Subscriptions
+	Subscriptions Subscriptions
 }
 
 func New(subscriptions Subscriptions) *Respository {
 	return &Respository{
-		subscriptions: subscriptions,
+		Subscriptions: subscriptions,
 	}
 }
