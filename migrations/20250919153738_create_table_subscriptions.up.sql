@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS effective_mobile.subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
     id UUID PRIMARY KEY,
     service_name VARCHAR(255) NOT NULL,
     price INT NOT NULL,

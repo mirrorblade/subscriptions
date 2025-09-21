@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS effective_mobile.subscriptions;
+DROP TABLE IF EXISTS subscriptions;
