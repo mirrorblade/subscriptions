@@ -4,12 +4,38 @@ set shell := ["zsh", "-cu"]
 SUCCESS_MESSAGE := "[\\u001b[32mSUCCESS\\u001b[0m]"
 INFO_MESSAGE := "[\\u001b[36mINFO\\u001b[0m]"
 
-DATABASE_URL := "postgresql://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/postgres?x-multi-statement=true"
+DATABASE_URL := "postgresql://$DATABASE_USER:$DATABASE_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME?x-multi-statement=true&sslmode=disable"
 MIGRATION_PATH := "./migrations/"
+
+COMPOSE_FILE := "./docker-compose.yml"
 
 # list all available commands of just
 default:
     @just --list --unsorted
+
+# start the entire stack
+@up *ARGS:
+    docker-compose -f {{COMPOSE_FILE}} up {{ARGS}}
+
+# stop everything gracefully
+@down *ARGS:
+    docker-compose -f {{COMPOSE_FILE}} down {{ARGS}}
+
+# start existing containers
+@start:
+    docker-compose -f {{COMPOSE_FILE}} start
+
+# stop running containers
+@stop:
+    docker-compose -f {{COMPOSE_FILE}} stop
+
+# restart running containers
+@restart:
+    docker-compose -f {{COMPOSE_FILE}} restart
+
+# rebuild with force
+@rebuild:
+    docker-compose -f {{COMPOSE_FILE}} up --build --force-recreate -d
 
 # migrate database up
 @migrate-up N="":
