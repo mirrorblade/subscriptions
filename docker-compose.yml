@@ -1,0 +1,86 @@
+name: "subscriptions"
+
+services:
+  backend:
+    build: .
+    volumes:
+      - logs:/var/log/backend
+    environment:
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_HOST: db
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      APP_PRODUCTION: ${APP_PRODUCTION}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-q",
+          "-d",
+          "${DATABASE_NAME}",
+          "-U",
+          "${DATABASE_USER}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  alloy:
+    image: grafana/alloy:latest
+    volumes:
+      - logs:/var/log/backend:ro
+      - ./configs/config.alloy:/etc/alloy/config.alloy
+      - alloy-data:/var/lib/alloy
+    ports:
+      - "12345:12345"
+    command: ["run", "/etc/alloy/config.alloy"]
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - loki
+
+  loki:
+    image: grafana/loki:2.8.2
+    volumes:
+      - ./configs/loki.yaml:/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-enterprise
+    volumes:
+      - ./configs/grafana.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+volumes:
+  logs:
+  db-data:
+  alloy-data:
+  grafana-data:
