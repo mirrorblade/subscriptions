@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/mirrorblade/subscriptions/internal/service"
 )

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/mirrorblade/subscriptions/internal/domain"
 	"github.com/mirrorblade/subscriptions/internal/repository"
 )
@@ -33,6 +33,8 @@ func (h *Handler) initSubscriptions(g *echo.Group) {
 func (h *Handler) getSubscription(c echo.Context) error {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
@@ -40,6 +42,8 @@ func (h *Handler) getSubscription(c echo.Context) error {
 
 	subscription, err := h.service.Subscriptions.GetByID(c.Request().Context(), id)
 	if err != nil {
+		c.Set("error", err)
+
 		if errors.Is(err, domain.ErrSubscriptionNotFound) {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
@@ -57,6 +61,8 @@ func (h *Handler) getSubscription(c echo.Context) error {
 func (h *Handler) getSubscriptions(c echo.Context) error {
 	userID, err := uuid.Parse(c.Param("user_id"))
 	if err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
@@ -64,6 +70,8 @@ func (h *Handler) getSubscriptions(c echo.Context) error {
 
 	subscriptions, err := h.service.Subscriptions.GetListByUserID(c.Request().Context(), userID)
 	if err != nil {
+		c.Set("error", err)
+
 		if errors.Is(err, domain.ErrUserNotFound) {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
@@ -81,6 +89,8 @@ func (h *Handler) getSubscriptions(c echo.Context) error {
 func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 	userID, err := uuid.Parse(c.Param("user_id"))
 	if err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
@@ -98,6 +108,8 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 	if dirtyFromDate != "" {
 		date, err := time.Parse("01-2006", dirtyFromDate)
 		if err != nil {
+			c.Set("error", err)
+
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
 			})
@@ -110,6 +122,8 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 	if dirtyToDate != "" {
 		date, err := time.Parse("01-2006", dirtyToDate)
 		if err != nil {
+			c.Set("error", err)
+
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
 			})
@@ -125,6 +139,8 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 
 	price, err := h.service.Subscriptions.GetPriceSumByUserID(c.Request().Context(), userID, parameters)
 	if err != nil {
+		c.Set("error", err)
+
 		if errors.Is(err, domain.ErrUserNotFound) {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
@@ -142,6 +158,8 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 func (h *Handler) createSubscription(c echo.Context) error {
 	body := new(subscriptionJSON)
 	if err := c.Bind(body); err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
@@ -149,6 +167,8 @@ func (h *Handler) createSubscription(c echo.Context) error {
 
 	userID, err := uuid.Parse(body.UserID)
 	if err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
@@ -156,6 +176,8 @@ func (h *Handler) createSubscription(c echo.Context) error {
 
 	startDate, err := time.Parse("01-2006", body.StartDate)
 	if err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
@@ -166,6 +188,8 @@ func (h *Handler) createSubscription(c echo.Context) error {
 	if body.EndDate != "" {
 		date, err := time.Parse("01-2006", body.EndDate)
 		if err != nil {
+			c.Set("error", err)
+
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
 			})
@@ -183,6 +207,8 @@ func (h *Handler) createSubscription(c echo.Context) error {
 	}
 
 	if err := h.service.Subscriptions.Create(c.Request().Context(), subscription); err != nil {
+		c.Set("error", err)
+
 		if errors.Is(err, domain.ErrInvalidPrice) {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
@@ -208,6 +234,8 @@ func (h *Handler) createSubscription(c echo.Context) error {
 func (h *Handler) updateSubscription(c echo.Context) error {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
@@ -218,6 +246,8 @@ func (h *Handler) updateSubscription(c echo.Context) error {
 	if dirtyPrice != "" {
 		clearPrice, err := strconv.ParseInt(dirtyPrice, 10, 64)
 		if err != nil {
+			c.Set("error", err)
+
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
 			})
@@ -230,6 +260,8 @@ func (h *Handler) updateSubscription(c echo.Context) error {
 	if dirtyEndDate != "" {
 		date, err := time.Parse("01-2006", dirtyEndDate)
 		if err != nil {
+			c.Set("error", err)
+
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
 			})
@@ -243,6 +275,8 @@ func (h *Handler) updateSubscription(c echo.Context) error {
 	}
 
 	if err := h.service.Subscriptions.UpdateByID(c.Request().Context(), id, parameters); err != nil {
+		c.Set("error", err)
+
 		if errors.Is(err, domain.ErrSubscriptionNotFound) {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
@@ -260,12 +294,16 @@ func (h *Handler) updateSubscription(c echo.Context) error {
 func (h *Handler) deleteSubscription(c echo.Context) error {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
+		c.Set("error", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "bad request",
 		})
 	}
 
 	if err := h.service.Subscriptions.DeleteByID(c.Request().Context(), id); err != nil {
+		c.Set("error", err)
+
 		if errors.Is(err, domain.ErrSubscriptionNotFound) {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"message": "bad request",
