@@ -64,6 +64,10 @@ func (s *Subscriptions) GetListByUserID(context context.Context, userID uuid.UUI
 		return []domain.Subscription{}, err
 	}
 
+	if len(subscriptions) == 0 {
+		return []domain.Subscription{}, domain.ErrUserNotFound
+	}
+
 	return subscriptions, nil
 }
 
