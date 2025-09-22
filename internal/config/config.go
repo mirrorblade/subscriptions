@@ -2,6 +2,7 @@ package config
 
 import (
 	"strings"
+	"time"
 
 	"github.com/knadh/koanf/parsers/dotenv"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -26,6 +27,15 @@ type (
 	Server struct {
 		Host string `koanf:"host"`
 		Port string `koanf:"port"`
+
+		CORS struct {
+			AllowOrigins     []string      `koanf:"allow_origins"`
+			AllowCredentials bool          `koanf:"allow_credentials"`
+			AllowMethods     []string      `koanf:"allow_methods"`
+			AllowHeaders     []string      `koanf:"allow_headers"`
+			ExposeHeaders    []string      `koanf:"expose_headers"`
+			MaxAge           time.Duration `koanf:"max_age"`
+		}
 	}
 
 	Config struct {
