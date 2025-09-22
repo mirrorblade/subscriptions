@@ -16,6 +16,7 @@ default:
 # start the entire stack
 @up *ARGS:
     docker-compose -f {{COMPOSE_FILE}} up {{ARGS}}
+    just migrate-up
 
 # stop everything gracefully
 @down *ARGS:
@@ -35,7 +36,32 @@ default:
 
 # rebuild with force
 @rebuild:
-    docker-compose -f {{COMPOSE_FILE}} up --build --force-recreate -d
+    just up --build --force-recreate -d
+
+# run swagger-ui container on port 8080
+@run-swagger:
+    docker run -d --name=swagger-ui --network=host -e SWAGGER_JSON=/api/openapi.yaml -v ./api/openapi.yaml:/api/openapi.yaml swaggerapi/swagger-ui
+
+# start swagger-ui container
+@start-swagger:
+    docker start swagger-ui
+
+# stop swagger-ui container
+@stop-swagger:
+    docker stop swagger-ui
+
+# kill swagger-ui container
+@kill-swagger:
+    docker stop swagger-ui
+
+# remove swagger-ui container
+@remove-swagger:
+    just stop-swagger
+    docker rm swagger-ui
+
+# restart swagger-ui container
+@restart-swagger:
+    docker restart swagger-ui
 
 # migrate database up
 @migrate-up N="":
