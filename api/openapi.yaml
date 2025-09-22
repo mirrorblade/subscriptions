@@ -1,0 +1,298 @@
+openapi: 3.1.4
+info:
+  title: Subscriptions service for Effective Mobile
+  description: |-
+    This REST service implements functionality for aggregating data about
+    users' online subscriptions.
+    More information about errors that arrives while user's request see logs of the service.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/rest
+tags:
+  - name: subscriptions
+    description: Functionality for interaction with subscriptions
+paths:
+  /subscriptions/{id}:
+    get:
+      tags:
+        - subscriptions
+      summary: Get an existing subscription.
+      description: Get an existing subscription.
+      operationId: getSubscription
+      parameters:
+        - in: path
+          name: id
+          description: ID of subscription to return
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - subscriptions
+      summary: Update an existing subscription.
+      description: Update an existing subscription (price and end_date, at least one query parameter must be provided).
+      operationId: updateSubscription
+      parameters:
+        - in: path
+          name: id
+          description: ID of subscription to return
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - in: query
+          name: price
+          description: Price of subscription to update
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: end_date
+          description: End date of subscription
+          required: false
+          schema:
+            $ref: "#/components/schemas/Date"
+      responses:
+        "204":
+          description: Successful operation
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - subscriptions
+      summary: Delete an existing subscription.
+      description: Delete an existing subscription.
+      operationId: deleteSubscription
+      parameters:
+        - in: path
+          name: id
+          description: ID of subscription to delete
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "204":
+          description: Successful operation
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /subscriptions/:
+    get:
+      tags:
+        - subscriptions
+      summary: Get existing subscriptions.
+      description: Get existing subscriptions.
+      operationId: getSubscriptions
+      parameters:
+        - in: query
+          name: user_id
+          description: ID of user to return subscriptions
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              type: array
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - subscriptions
+      summary: Create a new subscription.
+      description: Create a new subscription.
+      operationId: createSubscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_name:
+                  type: string
+                  example: Yandex Plus
+                price:
+                  type: integer
+                  format: int64
+                  example: 400
+                user_id:
+                  $ref: "#/components/schemas/ID"
+                  example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+                start_date:
+                  $ref: "#/components/schemas/Date"
+                  example: 07-2025
+                end_date:
+                  $ref: "#/components/schemas/Date"
+                  nullable: true
+                  example: 08-2025
+              required:
+                - service_name
+                - price
+                - user_id
+                - start_date
+      responses:
+        "201":
+          description: Successful operation
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /subscriptions/price:
+    get:
+      tags:
+        - subscriptions
+      summary: Get price of all user's services.
+      description: Get price of all user's services.
+      operationId: getSubscriptionsSum
+      parameters:
+        - in: query
+          name: user_id
+          description: ID of user to return price
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - in: query
+          name: service_name
+          description: Service name for exact search of this one
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: from_date
+          description: Start date of search
+          required: false
+          schema:
+            $ref: "#/components/schemas/Date"
+        - in: query
+          name: to_date
+          description: End date of search
+          required: false
+          schema:
+            $ref: "#/components/schemas/Date"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              type: integer
+              format: int64
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Subscription:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+          example: 9bd690a8-4519-4b5d-ae81-f2f974f1f2aa
+        service_name:
+          type: string
+          example: Yandex Plus
+        price:
+          type: integer
+          format: int64
+          example: 400
+        user_id:
+          $ref: "#/components/schemas/ID"
+          example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        start_date:
+          $ref: "#/components/schemas/Date"
+          example: 07-2025
+        end_date:
+          $ref: "#/components/schemas/Date"
+          nullable: true
+          example: 08-2025
+      required:
+        - id
+        - service_name
+        - price
+        - user_id
+        - start_date
+    ID:
+      type: string
+      pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+      description: Custom id type (UUID v4)
+      minLength: 36
+      maxLength: 36
+    Date:
+      type: string
+      pattern: '^(0[1-9]|1[0-2])-(19|20)\d{2}$'
+      description: Custom date type in MM-YYYY format
+      minLength: 7
+      maxLength: 7
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
