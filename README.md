@@ -24,6 +24,7 @@ Before running, you must install:
 ## Usage
 
 You can find a detailed description of the commands in the [justfile](./justfile).
+Zsh is being used as default shell. If you are using another shell, change shell parameter in [justfile](./justfile).
 
 ### Run the application
 
