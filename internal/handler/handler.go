@@ -35,11 +35,13 @@ func (h *Handler) Init() {
 
 	h.router.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogURI:      true,
+		LogMethod:   true,
 		LogStatus:   true,
 		LogRemoteIP: true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
 			fields := []zap.Field{
-				zap.String("URI", v.URI),
+				zap.String("uri", v.URI),
+				zap.String("method", v.Method),
 				zap.Int("status", v.Status),
 				zap.String("ip", v.RemoteIP),
 			}
@@ -66,6 +68,18 @@ func (h *Handler) Init() {
 			return nil
 		},
 	}))
+
+	corsConfig := middleware.DefaultCORSConfig
+
+	corsConfig.AllowOrigins = h.config.CORS.AllowOrigins
+	corsConfig.AllowMethods = h.config.CORS.AllowMethods
+	corsConfig.AllowHeaders = h.config.CORS.AllowHeaders
+	corsConfig.AllowCredentials = h.config.CORS.AllowCredentials
+	corsConfig.MaxAge = int(h.config.CORS.MaxAge.Seconds())
+
+	h.router.Use(middleware.CORSWithConfig(corsConfig))
+
+	h.router.Use(middleware.AddTrailingSlash())
 
 	h.checkHealth()
 
