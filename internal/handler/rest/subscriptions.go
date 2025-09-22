@@ -12,7 +12,7 @@ import (
 	"github.com/mirrorblade/subscriptions/internal/repository"
 )
 
-type subscriptionJSON struct {
+type createSubscriptionBody struct {
 	ServiceName string `json:"service_name"`
 	Price       int64  `json:"price"`
 	UserID      string `json:"user_id"`
@@ -45,8 +45,8 @@ func (h *Handler) getSubscription(c echo.Context) error {
 		c.Set("error", err)
 
 		if errors.Is(err, domain.ErrSubscriptionNotFound) {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "bad request",
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"message": "not found",
 			})
 		}
 
@@ -59,7 +59,7 @@ func (h *Handler) getSubscription(c echo.Context) error {
 }
 
 func (h *Handler) getSubscriptions(c echo.Context) error {
-	userID, err := uuid.Parse(c.Param("user_id"))
+	userID, err := uuid.Parse(c.QueryParam("user_id"))
 	if err != nil {
 		c.Set("error", err)
 
@@ -73,8 +73,8 @@ func (h *Handler) getSubscriptions(c echo.Context) error {
 		c.Set("error", err)
 
 		if errors.Is(err, domain.ErrUserNotFound) {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "bad request",
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"message": "not found",
 			})
 		}
 
@@ -87,7 +87,7 @@ func (h *Handler) getSubscriptions(c echo.Context) error {
 }
 
 func (h *Handler) getSubscriptionsSum(c echo.Context) error {
-	userID, err := uuid.Parse(c.Param("user_id"))
+	userID, err := uuid.Parse(c.QueryParam("user_id"))
 	if err != nil {
 		c.Set("error", err)
 
@@ -97,14 +97,14 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 	}
 
 	var serviceName *string
-	dirtyServiceName := c.Param("service_name")
+	dirtyServiceName := c.QueryParam("service_name")
 	if dirtyServiceName != "" {
 		sanitizedServiceName := h.sanitizer.Sanitize(dirtyServiceName)
 		serviceName = &sanitizedServiceName
 	}
 
 	var fromDate *time.Time
-	dirtyFromDate := c.Param("from_date")
+	dirtyFromDate := c.QueryParam("from_date")
 	if dirtyFromDate != "" {
 		date, err := time.Parse("01-2006", dirtyFromDate)
 		if err != nil {
@@ -118,7 +118,7 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 	}
 
 	var toDate *time.Time
-	dirtyToDate := c.Param("to_date")
+	dirtyToDate := c.QueryParam("to_date")
 	if dirtyToDate != "" {
 		date, err := time.Parse("01-2006", dirtyToDate)
 		if err != nil {
@@ -142,8 +142,8 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 		c.Set("error", err)
 
 		if errors.Is(err, domain.ErrUserNotFound) {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "bad request",
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"message": "not found",
 			})
 		}
 
@@ -156,7 +156,7 @@ func (h *Handler) getSubscriptionsSum(c echo.Context) error {
 }
 
 func (h *Handler) createSubscription(c echo.Context) error {
-	body := new(subscriptionJSON)
+	body := new(createSubscriptionBody)
 	if err := c.Bind(body); err != nil {
 		c.Set("error", err)
 
@@ -242,7 +242,7 @@ func (h *Handler) updateSubscription(c echo.Context) error {
 	}
 
 	var price *int64
-	dirtyPrice := c.Param("price")
+	dirtyPrice := c.QueryParam("price")
 	if dirtyPrice != "" {
 		clearPrice, err := strconv.ParseInt(dirtyPrice, 10, 64)
 		if err != nil {
@@ -256,7 +256,7 @@ func (h *Handler) updateSubscription(c echo.Context) error {
 	}
 
 	var endDate *time.Time
-	dirtyEndDate := c.Param("end_date")
+	dirtyEndDate := c.QueryParam("end_date")
 	if dirtyEndDate != "" {
 		date, err := time.Parse("01-2006", dirtyEndDate)
 		if err != nil {
@@ -278,8 +278,8 @@ func (h *Handler) updateSubscription(c echo.Context) error {
 		c.Set("error", err)
 
 		if errors.Is(err, domain.ErrSubscriptionNotFound) {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "bad request",
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"message": "not found",
 			})
 		}
 
@@ -305,8 +305,8 @@ func (h *Handler) deleteSubscription(c echo.Context) error {
 		c.Set("error", err)
 
 		if errors.Is(err, domain.ErrSubscriptionNotFound) {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "bad request",
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"message": "not found",
 			})
 		}
 
